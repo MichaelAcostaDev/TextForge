@@ -1,47 +1,45 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-ASCIIFLOW_VERSION="0.1.0"
-ASCIIFLOW_STYLE_DEFAULT="block"
-ASCIIFLOW_COLOR_DEFAULT="cyan"
-ASCIIFLOW_DATA_DIR="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}/asciiflow"
+TEXTFORGE_VERSION="2.0.0"
+TEXTFORGE_STYLE_DEFAULT="block"
+TEXTFORGE_COLOR_DEFAULT="cyan"
+TEXTFORGE_DATA_DIR="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}/textforge"
 
 usage() {
   cat <<'EOF'
-ASCIIFlow 0.1.1
+TextForge 2.0.0
 
 Generate ASCII banners in your terminal.
 
 Usage:
-  asciiflow [options] "text"
-  asciiflow -s STYLE "text"
-  asciiflow -S NAME "text"
-  asciiflow -L NAME
+  textforge [options] "text"
+  textforge -f FONT "text"
+  textforge --list-fonts
+  textforge --colors
 
 Options:
-  -s, --style STYLE   Use a built-in style
-  -S, --save NAME     Save a banner
-  -L, --load NAME     Load a saved banner
-  -l, --list          List available styles
-  -r, --random        Pick a random style
-  -n, --no-color      Disable ANSI colors
-  -v, --version       Show version
-  -h, --help          Show help
-
-Styles:
-  block small minimal banner slant shadow digital
+  -f, --font FONT        Use a font
+  -n, --no-color         Disable ANSI colors
+      --color COLOR      Apply a foreground color
+  -a, --align MODE       Align text
+  -w, --width N          Set width
+  -s, --spacing N        Set spacing
+      --list-fonts       List fonts
+      --colors           List colors
+  -v, --version          Show version
+  -h, --help             Show help
 
 Examples:
-  asciiflow "Hello"
-  asciiflow --style block "Arch Linux"
-  asciiflow --random "ASCIIFlow"
-  asciiflow --save welcome "Welcome"
-  asciiflow --load welcome
+  textforge "Hello"
+  textforge -f digital "Hello"
+  textforge --color cyan "Hello"
+  textforge --list-fonts
 EOF
 }
 
 version() {
-  printf 'ASCIIFlow %s\n' "$ASCIIFLOW_VERSION"
+  printf 'TextForge %s\n' "$TEXTFORGE_VERSION"
 }
 
 error() {
@@ -50,7 +48,7 @@ error() {
 
   printf 'Error: %s\n' "$message" >&2
   if [[ "$show_usage" == "usage" ]]; then
-    printf '\nRun '\''asciiflow --help'\'' for usage.\n' >&2
+    printf '\nRun '\''textforge --help'\'' for usage.\n' >&2
   fi
   exit 1
 }
@@ -181,17 +179,17 @@ main() {
   fi
 
   if [[ "$random_mode" -eq 1 ]]; then
-    raw_text="${positional[*]:-ASCIIFlow}"
+    raw_text="${positional[*]:-TextForge}"
     raw_text="$(trim_text "$raw_text")"
     if [[ -z "$raw_text" ]]; then
-      raw_text="ASCIIFlow"
+      raw_text="TextForge"
     fi
     style="${style:-$(choose_random_style)}"
     if ! is_valid_style "$style"; then
       printf 'Error: unknown style '\''%s'\''\n\nAvailable styles:\n  block\n  small\n  minimal\n  banner\n  slant\n  shadow\n  digital\n' "$style" >&2
       exit 1
     fi
-    render_banner "$raw_text" "$style" "${ASCIIFLOW_COLOR_DEFAULT:-cyan}"
+    render_banner "$raw_text" "$style" "${TEXTFORGE_COLOR_DEFAULT:-cyan}"
     exit 0
   fi
 
@@ -205,11 +203,11 @@ main() {
     error "missing text" "usage"
   fi
 
-  style="${style:-$ASCIIFLOW_STYLE_DEFAULT}"
+  style="${style:-$TEXTFORGE_STYLE_DEFAULT}"
   if ! is_valid_style "$style"; then
     printf 'Error: unknown style '\''%s'\''\n\nAvailable styles:\n  block\n  small\n  minimal\n  banner\n  slant\n  shadow\n  digital\n' "$style" >&2
     exit 1
   fi
 
-  render_banner "$raw_text" "$style" "${ASCIIFLOW_COLOR_DEFAULT:-cyan}"
+  render_banner "$raw_text" "$style" "${TEXTFORGE_COLOR_DEFAULT:-cyan}"
 }

@@ -243,6 +243,6 @@ preview_styles() {
   local style
   for style in block small minimal banner slant shadow digital; do
     printf '\n[%s]\n' "$style"
-    render_banner "ASCIIFlow" "$style" cyan ""
+    render_banner "TextForge" "$style" cyan ""
   done
 }

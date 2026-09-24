@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-ascii_storage_dir() {
+textforge_storage_dir() {
   local basedir="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}"
-  printf '%s/asciiflow' "$basedir"
+  printf '%s/textforge' "$basedir"
 }
 
 safe_banner_name() {

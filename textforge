@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -n "${TEXTFORGE_ROOT:-}" ]]; then
+  export TEXTFORGE_ROOT
+elif [[ -d "${SCRIPT_DIR}/src" && -d "${SCRIPT_DIR}/fonts" ]]; then
+  export TEXTFORGE_ROOT="$SCRIPT_DIR"
+else
+  export TEXTFORGE_ROOT="${HOME}/.local/share/textforge"
+fi
+
+source "${TEXTFORGE_ROOT}/src/version.sh"
+source "${TEXTFORGE_ROOT}/src/fonts.sh"
+source "${TEXTFORGE_ROOT}/src/colors.sh"
+source "${TEXTFORGE_ROOT}/src/renderer.sh"
+source "${TEXTFORGE_ROOT}/src/cli.sh"
+
+parse_cli "$@"

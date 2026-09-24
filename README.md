@@ -1,180 +1,95 @@
-# ASCIIFlow
+# TextForge
 
-Generate beautiful large ASCII text banners directly from your terminal - a lightweight, dependency-free Bash tool.
-
-<p align="left">
-  <a href="https://github.com/MichaelAcostaDev/ASCIIFlow"><img alt="GitHub Repository" src="https://img.shields.io/badge/GitHub-ASCIIFlow-181717?logo=github" /></a>
-  <a href="https://github.com/MichaelAcostaDev"><img alt="GitHub Profile" src="https://img.shields.io/badge/GitHub-MichaelAcostaDev-181717?logo=github" /></a>
-  <a href="https://opensource.org/licenses/MIT"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green.svg" /></a>
-  <img alt="Bash" src="https://img.shields.io/badge/Language-Bash-4EAA25?logo=gnu-bash" />
-</p>
-
-## About
-
-ASCIIFlow is a lightweight, pure-Bash CLI tool that renders text as large, multi-line ASCII art banners. Perfect for creating eye-catching terminal decorations, script headers, documentation, or just having fun with ASCII art.
-
-**Key Philosophy:** Small, fast, portable, zero dependencies, readable code.
+TextForge is a lightweight Bash CLI that renders large multi-line ASCII banners directly in the terminal. It is built for quick, dependency-free text rendering and supports multiple fonts, colors, alignment, and simple installation.
 
 ## Features
 
-✨ **Multiple Fonts** - Block, Digital, Banner, Small  
-🎨 **No Dependencies** - Pure Bash, works everywhere  
-⚡ **Fast** - Instant rendering  
-📦 **Portable** - Works on any Linux distribution  
-🔤 **Rich Character Set** - A-Z, a-z, 0-9, punctuation  
-🎯 **Simple CLI** - Intuitive, minimal options  
+- Pure Bash implementation
+- Multiple built-in fonts
+- ANSI color support
+- Adjustable alignment, width, and spacing
+- Simple install and uninstall workflow
+- Works from any directory once installed
 
-## Quick Start
+## Requirements
 
-### Installation
+- Bash 4+
+- A Unix-like environment
+- Standard shell utilities already present on most Linux systems
+
+## Installation
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/MichaelAcostaDev/ASCIIFlow.git
-cd ASCIIFlow
+git clone https://github.com/MichaelAcostaDev/TextForge.git
+cd TextForge
+```
+
+### 2. Install TextForge
+
+```bash
 ./install.sh
 ```
 
-Then open a new terminal, or run:
+### 3. Make sure the executable is on your PATH
+
+If `textforge` is not found in your current shell, run:
+
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-### Basic Usage
+Then verify the installation:
 
 ```bash
-asciiflow "Hello"
+textforge --help
+textforge --version
 ```
 
-Output:
-```
-█   █   █████   █       █        ███   
-█   █   █       █       █       █   █  
-█████   ████    █       █       █   █  
-█   █   █       █       █       █   █  
-█   █   █████   █████   █████    ███   
-```
+## Usage
 
-## Usage Guide
-
-### Generate a Banner
+### Basic banner
 
 ```bash
-asciiflow "Your Text"
+textforge "Hello"
 ```
 
-### Choose a Font
+### Choose a font
 
 ```bash
-asciiflow -f block "Hello"          # Default (bold, large)
-asciiflow -f digital "Hello"        # 7-segment display style
-asciiflow -f banner "Hello"         # Classic banner
-asciiflow -f small "Hello"          # Compact
+textforge -f block "Hello"
+textforge -f digital "Hello"
+textforge -f banner "Hello"
+textforge -f small "Hello"
 ```
 
-### List Available Fonts
+### List available fonts
 
 ```bash
-asciiflow -l
+textforge --list-fonts
+textforge -l
 ```
 
-### Get Help
+### View available colors
 
 ```bash
-asciiflow -h
+textforge --colors
 ```
 
-### Check Version
+### Disable ANSI colors
 
 ```bash
-asciiflow -v
+textforge --no-color "Hello"
 ```
 
-## Command Reference
+### Show help and version
 
-```
-Usage:
-  asciiflow "text"
-  asciiflow -f FONT "text"
-  asciiflow -l
-  asciiflow -h
-  asciiflow -v
-
-Options:
-  -f, --font FONT    Use a specific font (default: block)
-  -l, --list         List available fonts
-  -h, --help         Show help
-  -v, --version      Show version
-
-Examples:
-  asciiflow "Hello"
-  asciiflow -f digital "Arch Linux"
-  asciiflow -f small "Test"
-```
-
-## Fonts
-
-### block
-Large, bold block letters - perfect for prominent headers.
-
-### digital
-Digital display style inspired by 7-segment displays.
-
-### banner
-Classic clean banner style.
-
-### small
-Compact version for space-constrained terminals.
-
-## Examples
-
-### Welcome Banner
 ```bash
-asciiflow "Welcome to Linux"
+textforge --help
+textforge --version
+textforge -v
 ```
-
-### Project Header
-```bash
-asciiflow -f digital "MyProject"
-```
-
-### Documentation
-```bash
-asciiflow -f banner "Features"
-```
-
-## Architecture
-
-ASCIIFlow uses a modular design for maintainability:
-
-- **asciiflow** - Main entry point
-- **src/cli.sh** - Command-line parsing
-- **src/fonts.sh** - Font loading engine  
-- **src/renderer.sh** - ASCII composition engine
-- **fonts/*.font** - Font definitions
-
-### Font File Format
-
-Font files use a simple text format:
-
-```
-# Comment
-
-@A
- ███ 
-█   █
-█████
-█   █
-█   █
-
-@B
-████ 
-█   █
-████ 
-█   █
-████ 
-```
-
-Each `@CHARACTER` marker is followed by ASCII art lines for that character.
 
 ## Uninstall
 
@@ -182,31 +97,23 @@ Each `@CHARACTER` marker is followed by ASCII art lines for that character.
 ./uninstall.sh
 ```
 
-Or manually:
-```bash
-rm ~/.local/bin/asciiflow
+This removes the installed TextForge executable and its shared resource directory under `$HOME/.local/share/textforge`.
+
+## Project Structure
+
+```text
+TextForge/
+├── src/
+├── fonts/
+├── tests/
+├── textforge
+├── install.sh
+├── uninstall.sh
+├── README.md
+├── LICENSE
+├── .gitignore
+└── .git/
 ```
-
-## Requirements
-
-- **Bash** 4.0+
-- Standard Unix tools (already on all Linux systems)
-- UTF-8 terminal (recommended for best visuals)
-
-## Compatibility
-
-Tested and working on:
-- ✅ Arch Linux
-- ✅ Ubuntu / Debian  
-- ✅ Fedora / RHEL
-- ✅ Alpine Linux
-- ✅ Any Linux with Bash 4.0+
-
-## Performance
-
-- **Rendering time**: <50ms for typical text
-- **Memory usage**: Minimal (~100KB)
-- **No external calls**: Standalone execution
 
 ## License
 
@@ -215,11 +122,3 @@ This project is licensed under the [MIT License](LICENSE).
 ## Author
 
 Michael Acosta / [@MichaelAcostaDev](https://github.com/MichaelAcostaDev)
-
-## Contributing
-
-Contributions welcome! Feel free to submit issues, fork, or create pull requests.
-
----
-
-**Made with ❤️ in Bash**

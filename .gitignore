@@ -1,3 +1,20 @@
-*.swp
+# Editor / IDE
+.vscode/
+.idea/
+
+# Temporary files
 *.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Runtime / generated data
+.tmp-data/
+
+# Logs
+*.log

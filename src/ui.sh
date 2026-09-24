@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-ascii_banner() {
+textforge_banner() {
   cat <<'EOF'
-  ASCIIFlow
+  TextForge
 
   Create beautiful ASCII banners.
 EOF
@@ -11,10 +11,10 @@ EOF
 
 banner_intro() {
   if [[ -t 1 ]]; then
-    printf '%s\n' "$(ansi_fg 36)ASCIIFlow$(reset_color)"
+    printf '%s\n' "$(ansi_fg 36)TextForge$(reset_color)"
     printf '%s\n' "Create beautiful ASCII banners."
   else
-    printf '%s\n' 'ASCIIFlow'
+    printf '%s\n' 'TextForge'
     printf '%s\n' 'Create beautiful ASCII banners.'
   fi
 }

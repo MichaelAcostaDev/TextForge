@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="${HOME}/.local/bin"
-SHARE_DIR="${HOME}/.local/share/asciiflow"
-SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_BIN="$TARGET_DIR/asciiflow"
+SHARE_DIR="${HOME}/.local/share/textforge"
+TARGET_BIN="$TARGET_DIR/textforge"
 
 info() { printf '%s\n' "$1"; }
 warn() { printf 'Warning: %s\n' "$1" >&2; }
@@ -35,8 +35,8 @@ append_shell_path() {
   fi
 }
 
-if [[ ! -d "$SOURCE_DIR" ]]; then
-  error "project directory not found: $SOURCE_DIR"
+if [[ ! -d "$PROJECT_ROOT" ]]; then
+  error "project directory not found: $PROJECT_ROOT"
 fi
 
 if ! command -v bash >/dev/null 2>&1; then
@@ -48,34 +48,42 @@ if [[ ! -w "$TARGET_DIR" || ! -w "$SHARE_DIR" ]]; then
   error "cannot write to $TARGET_DIR or $SHARE_DIR; fix permissions and retry"
 fi
 
+cp -R "$PROJECT_ROOT/src" "$SHARE_DIR/"
+cp -R "$PROJECT_ROOT/fonts" "$SHARE_DIR/"
+cp "$PROJECT_ROOT/textforge" "$SHARE_DIR/textforge"
+cp "$PROJECT_ROOT/install.sh" "$SHARE_DIR/install.sh"
+cp "$PROJECT_ROOT/uninstall.sh" "$SHARE_DIR/uninstall.sh"
+cp "$PROJECT_ROOT/LICENSE" "$SHARE_DIR/LICENSE"
+cp "$PROJECT_ROOT/README.md" "$SHARE_DIR/README.md"
+cp -R "$PROJECT_ROOT/tests" "$SHARE_DIR/tests"
+
+cat > "$TARGET_BIN" <<EOF
+#!/usr/bin/env bash
+set -Eeuo pipefail
+export TEXTFORGE_ROOT="${SHARE_DIR}"
+exec "${SHARE_DIR}/textforge" "\$@"
+EOF
+
+chmod +x "$TARGET_BIN" "$SHARE_DIR/textforge" "$SHARE_DIR/install.sh" "$SHARE_DIR/uninstall.sh" "$SHARE_DIR/tests/run.sh"
+
 if [[ "${1:-}" == "--shell" ]]; then
   shell_name="${2:-${SHELL##*/}}"
   append_shell_path "$shell_name"
 fi
 
-cp -R "$SOURCE_DIR/src" "$SHARE_DIR/"
-cp "$SOURCE_DIR/asciiflow" "$SHARE_DIR/asciiflow"
-cp "$SOURCE_DIR/install.sh" "$SHARE_DIR/install.sh"
-cp "$SOURCE_DIR/uninstall.sh" "$SHARE_DIR/uninstall.sh"
-cp "$SOURCE_DIR/LICENSE" "$SHARE_DIR/LICENSE"
-cp "$SOURCE_DIR/README.md" "$SHARE_DIR/README.md"
-cp -R "$SOURCE_DIR/tests" "$SHARE_DIR/tests"
-cp "$SOURCE_DIR/asciiflow" "$TARGET_BIN"
-chmod +x "$TARGET_BIN" "$SHARE_DIR/asciiflow" "$SHARE_DIR/install.sh" "$SHARE_DIR/uninstall.sh" "$SHARE_DIR/tests/run.sh"
-
-if [[ ":$PATH:" == *":$TARGET_DIR:"* ]]; then
-  info "ASCIIFlow installed successfully."
-  info ""
-  info "Run:"
-  info "  asciiflow \"Hello\""
-  exit 0
-fi
-
-info "ASCIIFlow installed successfully."
+info "TextForge installed successfully."
 info ""
-info "The command was installed to:"
+info "Installed files:"
 info "  $TARGET_BIN"
+info "  $SHARE_DIR"
 info ""
-info "Add $TARGET_DIR to your PATH to use 'asciiflow' from new terminals."
-info "In your current shell, run:"
-info "  export PATH=\"$HOME/.local/bin:\$PATH\""
+if [[ ":$PATH:" != *":$TARGET_DIR:"* ]]; then
+  info "Add $TARGET_DIR to your PATH to use 'textforge' from new terminals."
+  info "In your current shell, run:"
+  info "  export PATH=\"$HOME/.local/bin:\$PATH\""
+  info ""
+fi
+info "Verify with:"
+info "  textforge --help"
+info "  textforge --version"
+info "  textforge \"Hello\""

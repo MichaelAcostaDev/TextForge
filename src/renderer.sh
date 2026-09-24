@@ -1,140 +1,157 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Core ASCII rendering engine
-# Composes multi-line glyphs horizontally to create banners
+trim_right() {
+  local value="${1:-}"
+  value="${value%${value##*[![:space:]]}}"
+  printf '%s' "$value"
+}
 
-source "${ASCIIFLOW_ROOT}/src/fonts.sh"
+pad_line() {
+  local line="${1:-}"
+  local width="${2:-0}"
+  local align="${3:-left}"
+  local length="${#line}"
 
-# Render text with a given font
-# Arguments: text, font_name
-# Output: multi-line banner
+  if (( width <= 0 || length >= width )); then
+    printf '%s' "$line"
+    return 0
+  fi
+
+  local remaining=$((width - length))
+  local left_pad=0
+  local right_pad=0
+
+  case "$align" in
+    left)
+      right_pad=$remaining
+      ;;
+    right)
+      left_pad=$remaining
+      ;;
+    center)
+      left_pad=$((remaining / 2))
+      right_pad=$((remaining - left_pad))
+      ;;
+    *)
+      right_pad=$remaining
+      ;;
+  esac
+
+  local left_spaces=""
+  local right_spaces=""
+  local i
+  for ((i = 0; i < left_pad; i++)); do left_spaces+=" "; done
+  for ((i = 0; i < right_pad; i++)); do right_spaces+=" "; done
+
+  printf '%s%s%s' "$left_spaces" "$line" "$right_spaces"
+}
+
 render_text() {
-  local text="$1"
+  local text="${1:-}"
   local font_name="${2:-block}"
-  local height
-  local i j char glyph
-  local -a line1 line2 line3 line4 line5 line6 line7
-  
-  # Get font height
+  local width="${3:-0}"
+  local align="${4:-left}"
+  local spacing="${5:-1}"
+  local height i j char glyph
+  local -a lines=()
+  local -a glyph_lines=()
+
+  [[ -n "$text" ]] || return 0
   height=$(get_font_height "$font_name")
-  
-  # Process each character
-  for ((i=0; i<${#text}; i++)); do
+
+  for ((i = 0; i < height; i++)); do
+    lines[i]=""
+  done
+
+  for ((i = 0; i < ${#text}; i++)); do
     char="${text:i:1}"
-    
-    # Get the glyph
+
     if [[ "$char" == " " ]]; then
-      # Add spacing for spaces
-      for ((j=1; j<=height; j++)); do
-        eval "line${j}+=('   ')"
+      for ((j = 0; j < height; j++)); do
+        local gap=""
+        for ((k = 0; k < spacing; k++)); do gap+=" "; done
+        lines[j]+="${gap}"
       done
       continue
     fi
-    
-    glyph=$(get_glyph "$char" "$font_name" 2>/dev/null || get_glyph "?" "$font_name" 2>/dev/null || echo "")
-    
+
+    glyph="$(get_glyph "$char" "$font_name" 2>/dev/null || get_glyph "?" "$font_name" 2>/dev/null || printf '')"
     if [[ -z "$glyph" ]]; then
-      # Add blank space
-      for ((j=1; j<=height; j++)); do
-        eval "line${j}+=('   ')"
+      for ((j = 0; j < height; j++)); do
+        local gap=""
+        for ((k = 0; k < spacing; k++)); do gap+=" "; done
+        lines[j]+="${gap}"
       done
       continue
     fi
-    
-    # Split glyph into lines and add to output
-    local -a glyph_arr=()
-    while IFS= read -r gline; do
-      glyph_arr+=("$gline")
+
+    glyph_lines=()
+    while IFS= read -r gline || [[ -n "$gline" ]]; do
+      glyph_lines+=("$gline")
     done <<< "$glyph"
-    
-    for ((j=0; j<height; j++)); do
-      if [[ $j -lt ${#glyph_arr[@]} ]]; then
-        eval "line$((j+1))+=('${glyph_arr[$j]}')"
-      else
-        eval "line$((j+1))+=('  ')"
+
+    for ((j = 0; j < height; j++)); do
+      local segment="${glyph_lines[j]:-}"
+      lines[j]+="${segment}"
+      if (( i < ${#text} - 1 )); then
+        local gap=""
+        for ((k = 0; k < spacing; k++)); do gap+=" "; done
+        lines[j]+="${gap}"
       fi
     done
-    
-    # Add space between characters
-    for ((j=1; j<=height; j++)); do
-      eval "line${j}+=(' ')"
-    done
   done
-  
-  # Output all lines
-  for ((i=1; i<=height; i++)); do
-    local -n line_var="line$i"
-    printf '%s\n' "${line_var[*]}"
+
+  for ((i = 0; i < height; i++)); do
+    lines[i]="$(trim_right "${lines[i]}")"
+    if (( width > 0 )); then
+      lines[i]="$(pad_line "${lines[i]}" "$width" "$align")"
+    fi
+    printf '%s\n' "${lines[i]}"
   done
 }
 
-# Render text with a color (simple implementation)
-# Arguments: text, font_name, color
 render_colored() {
-  local text="$1"
+  local text="${1:-}"
   local font_name="${2:-block}"
-  local color="${3:-}"
+  local color_name="${3:-default}"
+  local width="${4:-0}"
+  local align="${5:-left}"
+  local spacing="${6:-1}"
+
   local output
-  local line
-  
-  output=$(render_text "$text" "$font_name")
-  
-  if [[ -n "$color" ]]; then
-    # Apply color if colors are supported and not disabled
-    if [[ -z "${NO_COLOR:-}" ]] && [[ -t 1 ]]; then
-      case "$color" in
-        red) color_code=31 ;;
-        green) color_code=32 ;;
-        yellow) color_code=33 ;;
-        blue) color_code=34 ;;
-        magenta) color_code=35 ;;
-        cyan) color_code=36 ;;
-        white) color_code=37 ;;
-        *) color_code=36 ;; # default to cyan
-      esac
-      
-      # Apply color to output
-      while IFS= read -r line; do
-        printf '\033[%sm%s\033[0m\n' "$color_code" "$line"
-      done <<< "$output"
-    else
-      printf '%s\n' "$output"
-    fi
+  output="$(render_text "$text" "$font_name" "$width" "$align" "$spacing")"
+
+  if [[ -n "$color_name" && "$color_name" != "none" ]]; then
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      printf '%s\n' "$(apply_color_to_line "$line" "$color_name")"
+    done <<< "$output"
   else
     printf '%s\n' "$output"
   fi
 }
 
-# Get terminal width
 get_terminal_width() {
   if [[ -t 1 ]]; then
-    # Try to get actual terminal width
-    if command -v tput &>/dev/null; then
-      tput cols
+    if command -v tput >/dev/null 2>&1; then
+      tput cols 2>/dev/null || printf '80'
     elif [[ -n "${COLUMNS:-}" ]]; then
       printf '%s' "$COLUMNS"
     else
-      printf '80'  # Default fallback
+      printf '80'
     fi
   else
     printf '80'
   fi
 }
 
-# Check if text will fit in terminal
 will_fit_in_terminal() {
   local text="$1"
   local font_name="${2:-block}"
-  local width
-  local max_width
-  
-  width=$(render_text "$text" "$font_name" | head -1 | wc -c)
-  max_width=$(get_terminal_width)
-  
-  if [[ $width -le $max_width ]]; then
-    return 0
-  else
-    return 1
-  fi
+  local width max_width
+
+  width="$(render_text "$text" "$font_name" | head -n 1 | wc -c | tr -d ' ')"
+  max_width="$(get_terminal_width)"
+
+  (( width <= max_width ))
 }
