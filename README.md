@@ -122,3 +122,7 @@ This project is licensed under the [MIT License](LICENSE).
 ## Author
 
 Michael Acosta / [@MichaelAcostaDev](https://github.com/MichaelAcostaDev)
+
+## Disclaimer
+
+Made with love in Bash 💕
