@@ -99,21 +99,11 @@ textforge -v
 
 This removes the installed TextForge executable and its shared resource directory under `$HOME/.local/share/textforge`.
 
-## Project Structure
+## Examples
 
-```text
-TextForge/
-├── src/
-├── fonts/
-├── tests/
-├── textforge
-├── install.sh
-├── uninstall.sh
-├── README.md
-├── LICENSE
-├── .gitignore
-└── .git/
-```
+<img width="996" height="396" alt="WhatsApp Image 2026-09-24 at 17 13 25" src="https://github.com/user-attachments/assets/85678f9d-dec8-46da-8d70-1b0ebe8efb80" />
+
+<img width="1412" height="549" alt="WhatsApp Image 2026-09-24 at 17 13 25 (1)" src="https://github.com/user-attachments/assets/eb6373d5-fee0-4513-b3e6-7607b195cec6" />
 
 ## License
 
